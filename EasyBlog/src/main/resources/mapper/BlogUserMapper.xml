@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.n9.dao.BlogUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.n9.entity.AdminUser">
+        <id column="admin_user_id" jdbcType="INTEGER" property="adminUserId"/>
+        <result column="login_user_name" jdbcType="VARCHAR" property="loginUserName"/>
+        <result column="login_password" jdbcType="VARCHAR" property="loginPassword"/>
+        <result column="nick_name" jdbcType="VARCHAR" property="nickName"/>
+        <result column="createdTime" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="modifiedTime" jdbcType="TIMESTAMP" property="modifiedTime"/>
+        <result column="locked" jdbcType="TINYINT" property="locked"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    admin_user_id, login_user_name, login_password,nick_name, createdTime, modifiedTime,locked
+  </sql>
+
+
+    <select id="findBlogUserList" parameterType="Map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_admin_user
+        order by admin_user_id desc
+        limit #{start},#{limit}
+    </select>
+
+    <select id="getTotalBlogUsers" parameterType="Map" resultType="int">
+        select count(*) from tb_admin_user
+    </select>
+
+    <insert id="insert" parameterType="com.n9.entity.AdminUser">
+        insert into tb_admin_user
+        (admin_user_id,login_user_name,login_password,nick_name,createdTime,modifiedTime,user_status)
+        values
+        (#{adminUserId},#{loginUserName},#{loginPassword},#{nickName},now,now(),#{userStatus})
+    </insert>
+
+
+    <insert id="insertSelective" parameterType="com.n9.entity.AdminUser">
+        insert into tb_admin_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="adminUserId != null">
+                admin_user_id,
+            </if>
+            <if test="loginUserName != null">
+                login_user_name,
+            </if>
+            <if test="loginPassword != null">
+                login_password,
+            </if>
+            <if test="nickName != null">
+                nick_name,
+            </if>
+            <if test="createdTime != null">
+                createdTime,
+            </if>
+            <if test="modifiedTime != null">
+                modifiedTime,
+            </if>
+            <if test="locked != null">
+                locked,
+            </if>
+        </trim>
+        <trim prefix=" values (" suffix=")" suffixOverrides=",">
+            <if test="adminUserId != null">
+                #{adminUserId,jdbcType=INTEGER},
+            </if>
+            <if test="loginUserName != null">
+                #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="loginPassword != null">
+                #{loginPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="nickName != null">
+                #{nickName,jdbcType=VARCHAR},
+            </if>
+            <if test="createdTime != null">
+                #{createdTime},
+            </if>
+            <if test="modifiedTime != null">
+                #{modifiedTime},
+            </if>
+            <if test="locked != null">
+                #{locked},
+            </if>
+        </trim>
+
+    </insert>
+
+    <select id="selectByUserName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_admin_user
+        where login_user_name = #{loginUserName}
+    </select>
+
+    <delete id="deleteByUserId" parameterType="int">
+        delete from tb_admin_user
+        where admin_user_id=#{adminUserId}
+    </delete>
+
+    <delete id="deleteBatch">
+        delete from tb_admin_user
+        <where>
+            <foreach collection="ids"
+                     item="id">
+                or admin_user_id=#{id}
+            </foreach>
+        </where>
+    </delete>
+
+</mapper>

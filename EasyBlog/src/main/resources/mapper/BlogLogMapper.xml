@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.n9.dao.BlogLogDao">
+
+	<resultMap id="LogResultMap" type="com.n9.entity.BlogLog">
+		<id column="log_id" jdbcType="BIGINT" property="logId"/>
+	</resultMap>
+	
+	<sql id="queryWhereId">
+		<where>
+			<if test="keyword!=null">
+				username like concat("%",#{keyword},"%")
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 获取日志记录总数 -->
+	<select id="getRowCount" parameterType="Map" resultType="int">
+		select count(*) from tb_blog_log
+		<include refid="queryWhereId" />
+	</select>
+	
+	<!-- 分页查询,模糊查询 -->
+	<select id="findPageObjects" parameterType="Map" resultMap="LogResultMap"
+		resultType="com.n9.entity.BlogLog">
+		select * from tb_blog_log
+		<include refid="queryWhereId" />
+		order by createdTime desc
+		limit #{start},#{limit}
+	</select>
+
+	<!-- 删除记录 -->
+	<delete id="deleteObjects">
+		delete from tb_blog_log
+		where log_id in
+		<foreach collection="array" open="(" close=")" separator=","
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 添加日志 -->
+	<insert id="insertObject">
+		insert into tb_blog_log
+		(username,operation,method,params,time,ip,createdTime)
+		values
+		(#{username},#{operation},#{method},#{params},#{time},#{ip},#{createdTime})
+	</insert>
+
+</mapper>
